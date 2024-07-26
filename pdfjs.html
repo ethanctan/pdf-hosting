@@ -1,49 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Viewer</title>
+    <title>Display PDF</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <style>
-        .pdf-container {
-            position: relative;
+        #pdf-viewer {
             width: 100%;
-            height: 100vh;
-            overflow: auto;
-        }
-        .pdf-page {
-            display: block;
-            margin: auto;
+            height: 600px;
+            border: 1px solid #ccc;
         }
     </style>
 </head>
 <body>
-    <div class="pdf-container"></div>
-
-    <!-- PDF.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js"></script>
-
+    <div id="pdf-viewer"></div>
     <script>
-        const url = 'https://raw.githubusercontent.com/ethanctan/pdf-hosting/1c91041d8bd88041d12bf332eb39c7a6b0d5a104/hangul.pdf';
+        document.addEventListener("DOMContentLoaded", () => {
+            const pdfUrl = "https://acr2.apx.com/mymodule/ProjectDoc/Project_ViewFile.asp?FileID=45557&IDKEY=k98klasmf8jflkasf8098afnasfkj98f0a9sfsakjflsakjf8df62823103";
 
-        // Asynchronous download of PDF
-        pdfjsLib.getDocument(url).promise.then(function(pdf) {
-            console.log('PDF loaded');
+            const pdfViewer = document.getElementById('pdf-viewer');
 
-            const container = document.querySelector('.pdf-container');
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
 
-            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                // Page rendering in a canvas
-                pdf.getPage(pageNum).then(function(page) {
+            const loadingTask = pdfjsLib.getDocument(pdfUrl);
+            loadingTask.promise.then((pdf) => {
+                pdf.getPage(1).then((page) => {
+                    const scale = 1.5;
+                    const viewport = page.getViewport({ scale: scale });
+
                     const canvas = document.createElement('canvas');
-                    canvas.className = 'pdf-page';
-                    container.appendChild(canvas);
-                    
-                    const viewport = page.getViewport({ scale: 1.5 });
                     const context = canvas.getContext('2d');
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
+
+                    pdfViewer.appendChild(canvas);
 
                     const renderContext = {
                         canvasContext: context,
@@ -51,7 +40,7 @@
                     };
                     page.render(renderContext);
                 });
-            }
+            });
         });
     </script>
 </body>
